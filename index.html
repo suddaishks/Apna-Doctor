@@ -13,30 +13,38 @@
         .rtl { direction: rtl; text-align: right; }
         .ltr { direction: ltr; text-align: left; }
 
-        /* Header with Dual Buttons */
         .header { background: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); height: 55px; box-sizing: border-box; }
         .head-btn { background: white; color: var(--primary); border: none; padding: 5px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .head-btn:active { transform: scale(0.9); }
 
-        /* Help Modal (Pop-up) */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; position: relative; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* Pages & Animation */
+        /* --- Search Bar & Card Fix --- */
+        .search-box { background: white; padding: 10px; position: sticky; top: 55px; z-index: 90; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .search-input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; outline: none; transition: 0.3s; font-size: 14px; box-sizing: border-box; }
+        .search-input:focus { border-color: var(--primary); }
+
+        .card { 
+            background: white; padding: 15px; border-radius: 15px; margin-bottom: 12px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; 
+            justify-content: space-between; border-inline-start: 6px solid var(--primary); gap: 10px;
+        }
+        .user-info { flex: 1; min-width: 0; }
+        .user-info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-wa { 
+            background: var(--success); color: white; text-decoration: none; padding: 8px 14px; 
+            border-radius: 10px; font-size: 12px; font-weight: bold; flex-shrink: 0;
+        }
+        /* --------------------------- */
+
         .page { display: none; padding: 15px; animation: fadeIn 0.4s; }
         .active-page { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* UI Elements */
         .auth-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 85%; max-width: 400px; margin: 40px auto; text-align: center; }
-        .card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; border-inline-start: 6px solid var(--primary); }
-        .btn-wa { background: var(--success); color: white; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; position: absolute; inset-inline-end: 15px; top: 18px; }
-        
         input { width: 100%; padding: 13px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; }
         .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
 
-        /* Bottom Navigation */
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: none; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); border-top: 1px solid #eee; }
         .nav-item { border: none; background: none; color: #888; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; flex: 1; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
@@ -90,20 +98,25 @@
         </div>
     </div>
 
-    <div id="homePage" class="page"><div id="listContainer"></div></div>
+    <div id="homePage" class="page" style="padding:0;">
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by name or specialty..." onkeyup="filterData()">
+        </div>
+        <div id="listContainer" style="padding: 15px;"></div>
+    </div>
     
     <div id="dashPage" class="page">
-        <div class="card" style="text-align:center; padding: 40px 20px;">
+        <div class="card" style="text-align:center; flex-direction:column; padding: 40px 20px;">
             <h3 id="txt-liveStatus">Live Status</h3>
             <div style="color:var(--success); font-weight:bold; margin-bottom: 10px;">● Online</div>
-            <hr style="opacity:0.1;">
+            <hr style="opacity:0.1; width:100%;">
             <p id="txt-totalContacts" style="margin-bottom:5px;">Total active users:</p> 
             <b id="statCount" style="font-size: 30px; color: var(--primary);">0</b>
         </div>
     </div>
 
     <div id="profilePage" class="page">
-        <div class="card" style="text-align:center; padding: 30px;">
+        <div class="card" style="text-align:center; flex-direction:column; padding: 30px;">
             <div style="font-size:60px; margin-bottom: 10px;">👤</div>
             <h3 id="profName" style="margin:0;">-</h3>
             <p id="profSpec" style="color: #666; margin: 5px 0;">-</p>
@@ -119,7 +132,6 @@
     </nav>
 
     <script>
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDVJq00WDiMIZTuhaZnGKLeqLoBhOAUgWc",
             authDomain: "apna-doctor-d928f.firebaseapp.com",
@@ -130,28 +142,22 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentLang = 'en';
-        let userRole = '';
-        let myKey = '';
+        let currentLang = 'en'; let userRole = ''; let myKey = '';
 
         const translations = {
-            en: { appTitle: "Apna Doctor", helpBtn: "Help", welcome: "Welcome", selectRole: "Select role", imDoctor: "I am a Doctor", imPatient: "I am a Patient", docReg: "Doctor Registration", patReg: "Patient Registration", createAcc: "Create Account", joinNow: "Join Now", navHome: "Home", navDash: "Dashboard", navProf: "Profile", liveStatus: "Live Status", totalContacts: "Total Active Users", delAcc: "Delete Account Permanently", devName: "Developer: Sudais Khan", devDesc: "Created to connect patients with doctors easily.", contactPrompt: "For any issues, contact me:" },
-            ur: { appTitle: "اپنا ڈاکٹر", helpBtn: "ہیلپ", welcome: "خوش آمدید", selectRole: "رول منتخب کریں", imDoctor: "میں ڈاکٹر ہوں", imPatient: "میں مریض ہوں", docReg: "ڈاکٹر رجسٹریشن", patReg: "مریض رجسٹریشن", createAcc: "اکاؤنٹ بنائیں", joinNow: "ابھی شامل ہوں", navHome: "ہوم", navDash: "ڈیش بورڈ", navProf: "پروفائل", liveStatus: "لائیو اسٹیٹس", totalContacts: "کل ایکٹیو صارفین", delAcc: "اکاؤنٹ ہمیشہ کے لیے ختم کریں", devName: "ڈویلپر: سدیس خان", devDesc: "ڈاکٹروں اور مریضوں کے رابطے کے لیے بنائی گئی ایپ۔", contactPrompt: "مدد کے لیے رابطہ کریں:" }
+            en: { appTitle: "Apna Doctor", helpBtn: "Help", welcome: "Welcome", selectRole: "Select role", imDoctor: "I am a Doctor", imPatient: "I am a Patient", docReg: "Doctor Registration", patReg: "Patient Registration", createAcc: "Create Account", joinNow: "Join Now", navHome: "Home", navDash: "Dashboard", navProf: "Profile", liveStatus: "Live Status", totalContacts: "Total Active Users", delAcc: "Delete Account Permanently", devName: "Developer: Sudais Khan", devDesc: "Created to connect patients with doctors easily.", contactPrompt: "For any issues, contact me:", searchPh: "Search by name or specialty..." },
+            ur: { appTitle: "اپنا ڈاکٹر", helpBtn: "ہیلپ", welcome: "خوش آمدید", selectRole: "رول منتخب کریں", imDoctor: "میں ڈاکٹر ہوں", imPatient: "میں مریض ہوں", docReg: "ڈاکٹر رجسٹریشن", patReg: "مریض رجسٹریشن", createAcc: "اکاؤنٹ بنائیں", joinNow: "ابھی شامل ہوں", navHome: "ہوم", navDash: "ڈیش بورڈ", navProf: "پروفائل", liveStatus: "لائیو اسٹیٹس", totalContacts: "کل ایکٹیو صارفین", delAcc: "اکاؤنٹ ہمیشہ کے لیے ختم کریں", devName: "ڈویلپر: سدیس خان", devDesc: "ڈاکٹروں اور مریضوں کے رابطے کے لیے بنائی گئی ایپ۔", contactPrompt: "مدد کے لیے رابطہ کریں:", searchPh: "نام یا بیماری سے تلاش کریں..." }
         };
 
         window.onload = function() {
             let saved = localStorage.getItem('doctorAppUser');
             if(saved) {
-                let u = JSON.parse(saved);
-                userRole = u.role; myKey = u.key;
+                let u = JSON.parse(saved); userRole = u.role; myKey = u.key;
                 loginSuccess(u.name, u.spec);
             }
         };
 
-        function toggleHelp(show) {
-            document.getElementById('helpModal').style.display = show ? 'flex' : 'none';
-        }
-
+        function toggleHelp(show) { document.getElementById('helpModal').style.display = show ? 'flex' : 'none'; }
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'ur' : 'en';
             document.getElementById('mainBody').className = currentLang === 'ur' ? 'rtl' : 'ltr';
@@ -175,6 +181,7 @@
             document.getElementById('txt-devName').innerText = t.devName;
             document.getElementById('txt-devDesc').innerText = t.devDesc;
             document.getElementById('txt-contactPrompt').innerText = t.contactPrompt;
+            document.getElementById('searchInput').placeholder = t.searchPh;
         }
 
         function showForm(role) {
@@ -186,15 +193,12 @@
             let name = type === 'doctors' ? document.getElementById('dName').value : document.getElementById('pName').value;
             let phone = type === 'doctors' ? document.getElementById('dPhone').value : document.getElementById('pPhone').value;
             let spec = type === 'doctors' ? document.getElementById('dSpec').value : 'Patient';
-
             if(!name || !phone) return alert("Please fill all fields!");
-
             let ref = db.ref(type).push();
             let uData = {name, phone, spec, role: type, key: ref.key};
             ref.set(uData).then(() => {
                 localStorage.setItem('doctorAppUser', JSON.stringify(uData));
-                myKey = ref.key; userRole = type;
-                loginSuccess(name, spec);
+                myKey = ref.key; userRole = type; loginSuccess(name, spec);
             });
         }
 
@@ -214,13 +218,27 @@
                 snap.forEach(c => {
                     let d = c.val();
                     html += `<div class="card">
-                        <b>${d.name}</b><br><small>${d.spec}</small>
+                        <div class="user-info">
+                            <b>${d.name}</b>
+                            <div style="font-size:12px; color:gray;">${d.spec}</div>
+                        </div>
                         <a href="https://wa.me/${d.phone.replace('+','')}" class="btn-wa">WhatsApp</a>
                     </div>`;
                     count++;
                 });
                 document.getElementById('listContainer').innerHTML = html || '<p style="text-align:center; color:gray; margin-top:50px;">Nothing to show</p>';
                 document.getElementById('statCount').innerText = count;
+                filterData(); // Keep filter active after data refresh
+            });
+        }
+
+        // --- Filter Function ---
+        function filterData() {
+            let term = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.querySelectorAll('#listContainer .card');
+            cards.forEach(card => {
+                let text = card.innerText.toLowerCase();
+                card.style.display = text.includes(term) ? "flex" : "none";
             });
         }
 
@@ -234,18 +252,11 @@
         function deleteMyOwnAccount() {
             if(confirm("Confirm: This will permanently delete your data?")) {
                 db.ref(userRole + '/' + myKey).remove().then(() => {
-                    localStorage.removeItem('doctorAppUser');
-                    location.reload();
+                    localStorage.removeItem('doctorAppUser'); location.reload();
                 });
             }
         }
-
-        function logout() {
-            if(confirm("Logout?")) {
-                localStorage.removeItem('doctorAppUser');
-                location.reload();
-            }
-        }
+        function logout() { if(confirm("Logout?")) { localStorage.removeItem('doctorAppUser'); location.reload(); } }
     </script>
 </body>
 </html>
