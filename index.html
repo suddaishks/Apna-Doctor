@@ -19,33 +19,33 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; position: relative; animation: slideUp 0.3s ease; }
 
-        /* --- Search Bar & Card Fix --- */
         .search-box { background: white; padding: 10px; position: sticky; top: 55px; z-index: 90; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .search-input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; outline: none; transition: 0.3s; font-size: 14px; box-sizing: border-box; }
-        .search-input:focus { border-color: var(--primary); }
+
+        /* Profile Picture Styling */
+        .pic-container { width: 90px; height: 90px; border-radius: 50%; background: #eee; margin: 10px auto; overflow: hidden; border: 3px solid var(--primary); cursor: pointer; position: relative; }
+        .pic-container img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-txt { font-size: 10px; color: var(--primary); margin-bottom: 10px; font-weight: bold; }
 
         .card { 
-            background: white; padding: 15px; border-radius: 15px; margin-bottom: 12px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; 
-            justify-content: space-between; border-inline-start: 6px solid var(--primary); gap: 10px;
+            background: white; padding: 12px; border-radius: 15px; margin-bottom: 12px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; border-inline-start: 6px solid var(--primary);
         }
+        .card-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #ddd; }
         .user-info { flex: 1; min-width: 0; }
-        .user-info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .btn-wa { 
-            background: var(--success); color: white; text-decoration: none; padding: 8px 14px; 
-            border-radius: 10px; font-size: 12px; font-weight: bold; flex-shrink: 0;
-        }
-        /* --------------------------- */
+        .user-info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; }
+        
+        .btn-wa { background: var(--success); color: white; text-decoration: none; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: bold; }
 
         .page { display: none; padding: 15px; animation: fadeIn 0.4s; }
         .active-page { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .auth-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 85%; max-width: 400px; margin: 40px auto; text-align: center; }
-        input { width: 100%; padding: 13px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; }
-        .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
+        .auth-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 85%; max-width: 400px; margin: 20px auto; text-align: center; }
+        input { width: 100%; padding: 13px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
+        .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: none; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); border-top: 1px solid #eee; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: none; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; }
         .nav-item { border: none; background: none; color: #888; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; flex: 1; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
     </style>
@@ -58,77 +58,59 @@
         <button class="head-btn" onclick="toggleHelp(true)" id="txt-helpBtn">Help</button>
     </div>
 
-    <div id="helpModal" class="modal">
-        <div class="modal-content">
-            <div style="font-size: 45px; margin-bottom: 10px;">🛡️</div>
-            <h3 id="txt-devName" style="margin:0;">Developer: Sudais Khan</h3>
-            <p id="txt-devDesc" style="color: #666; font-size: 14px; margin: 10px 0;">Created to connect patients with doctors easily across Pakistan.</p>
-            <hr style="opacity:0.2; margin: 15px 0;">
-            <p id="txt-contactPrompt" style="font-size: 13px; font-weight: bold; margin-bottom: 10px;">For any issues or help, contact me:</p>
-            <a href="https://wa.me/923000000000?text=Salam Sudais, I need help with Apna Doctor App" class="btn-main" style="background:var(--success); text-decoration:none; display:block; text-align:center;">WhatsApp Admin</a>
-            <button onclick="toggleHelp(false)" style="background:none; border:none; color:gray; margin-top:15px; cursor:pointer; font-weight:bold;">[ Close ]</button>
-        </div>
-    </div>
-
     <div id="rolePage" class="page active-page">
         <div class="auth-card">
             <h2 id="txt-welcome">Welcome</h2>
-            <p style="color:#666; font-size: 14px;" id="txt-selectRole">Choose your profile type</p>
-            <button class="btn-main" onclick="showForm('doc')" id="txt-imDoctor">I am a Doctor</button>
-            <button class="btn-main" style="background:#6c757d;" onclick="showForm('pub')" id="txt-imPatient">I am a Patient</button>
+            <button class="btn-main" onclick="showForm('doc')">I am a Doctor</button>
+            <button class="btn-main" style="background:#6c757d;" onclick="showForm('pub')">I am a Patient</button>
         </div>
     </div>
 
-    <div id="docFormPage" class="page">
+    <div id="formPage" class="page">
         <div class="auth-card">
-            <h3 id="txt-docReg">Doctor Registration</h3>
-            <input type="text" id="dName" placeholder="Dr. Full Name">
-            <input type="text" id="dSpec" placeholder="Specialization">
-            <input type="tel" id="dPhone" placeholder="WhatsApp (923...)">
-            <button class="btn-main" onclick="register('doctors')" id="txt-createAcc">Create Account</button>
-        </div>
-    </div>
+            <h3 id="formHeading">Registration</h3>
+            
+            <div class="pic-container" onclick="document.getElementById('fileInput').click()">
+                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" id="previewImg">
+            </div>
+            <div class="upload-txt">Click to Upload Photo</div>
+            <input type="file" id="fileInput" hidden accept="image/*" onchange="handleImageUpload(this)">
+            <input type="hidden" id="finalPicUrl" value="https://cdn-icons-png.flaticon.com/512/149/149071.png">
 
-    <div id="pubFormPage" class="page">
-        <div class="auth-card">
-            <h3 id="txt-patReg">Patient Registration</h3>
-            <input type="text" id="pName" placeholder="Your Name">
-            <input type="tel" id="pPhone" placeholder="WhatsApp (923...)">
-            <button class="btn-main" onclick="register('patients')" id="txt-joinNow">Join Now</button>
+            <input type="text" id="uName" placeholder="Full Name">
+            <div id="docOnlyFields" style="display:none">
+                <input type="text" id="uSpec" placeholder="Specialization (Heart, Skin, etc.)">
+                <input type="text" id="uEdu" placeholder="Education / Diploma">
+            </div>
+            <input type="text" id="uCity" placeholder="City / Address">
+            <input type="tel" id="uPhone" placeholder="WhatsApp (923...)">
+            <button class="btn-main" id="submitBtn" onclick="register()">Create Account</button>
+            <button onclick="location.reload()" style="background:none; border:none; color:gray; margin-top:10px;">Cancel</button>
         </div>
     </div>
 
     <div id="homePage" class="page" style="padding:0;">
         <div class="search-box">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search by name or specialty..." onkeyup="filterData()">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by name or city..." onkeyup="filterData()">
         </div>
         <div id="listContainer" style="padding: 15px;"></div>
     </div>
-    
-    <div id="dashPage" class="page">
-        <div class="card" style="text-align:center; flex-direction:column; padding: 40px 20px;">
-            <h3 id="txt-liveStatus">Live Status</h3>
-            <div style="color:var(--success); font-weight:bold; margin-bottom: 10px;">● Online</div>
-            <hr style="opacity:0.1; width:100%;">
-            <p id="txt-totalContacts" style="margin-bottom:5px;">Total active users:</p> 
-            <b id="statCount" style="font-size: 30px; color: var(--primary);">0</b>
-        </div>
-    </div>
 
     <div id="profilePage" class="page">
-        <div class="card" style="text-align:center; flex-direction:column; padding: 30px;">
-            <div style="font-size:60px; margin-bottom: 10px;">👤</div>
+        <div class="auth-card">
+            <div class="pic-container">
+                <img src="" id="profPicDisp">
+            </div>
             <h3 id="profName" style="margin:0;">-</h3>
             <p id="profSpec" style="color: #666; margin: 5px 0;">-</p>
-            <button onclick="logout()" style="border:none; background:none; color:var(--primary); text-decoration: underline; cursor:pointer; margin-top:10px;">Logout Account</button>
+            <button class="btn-main" onclick="editProfile()">Edit Profile</button>
+            <button onclick="logout()" style="border:none; background:none; color:var(--primary); text-decoration: underline; margin-top:15px;">Logout</button>
         </div>
-        <button class="btn-main" style="background:var(--danger); margin-top:20px; font-size: 14px;" onclick="deleteMyOwnAccount()" id="txt-delAcc">Delete My Account Permanently</button>
     </div>
 
     <nav class="nav-bar" id="mainNav">
-        <button class="nav-item active" onclick="switchTab('homePage', this)"><span>🏠</span><br><small id="txt-navHome">Home</small></button>
-        <button class="nav-item" onclick="switchTab('dashPage', this)"><span>📊</span><br><small id="txt-navDash">Dashboard</small></button>
-        <button class="nav-item" onclick="switchTab('profilePage', this)"><span>👤</span><br><small id="txt-navProf">Profile</small></button>
+        <button class="nav-item active" onclick="switchTab('homePage', this)">🏠<br>Home</button>
+        <button class="nav-item" onclick="switchTab('profilePage', this)">👤<br>Profile</button>
     </nav>
 
     <script>
@@ -142,121 +124,130 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentLang = 'en'; let userRole = ''; let myKey = '';
-
-        const translations = {
-            en: { appTitle: "Apna Doctor", helpBtn: "Help", welcome: "Welcome", selectRole: "Select role", imDoctor: "I am a Doctor", imPatient: "I am a Patient", docReg: "Doctor Registration", patReg: "Patient Registration", createAcc: "Create Account", joinNow: "Join Now", navHome: "Home", navDash: "Dashboard", navProf: "Profile", liveStatus: "Live Status", totalContacts: "Total Active Users", delAcc: "Delete Account Permanently", devName: "Developer: Sudais Khan", devDesc: "Created to connect patients with doctors easily.", contactPrompt: "For any issues, contact me:", searchPh: "Search by name or specialty..." },
-            ur: { appTitle: "اپنا ڈاکٹر", helpBtn: "ہیلپ", welcome: "خوش آمدید", selectRole: "رول منتخب کریں", imDoctor: "میں ڈاکٹر ہوں", imPatient: "میں مریض ہوں", docReg: "ڈاکٹر رجسٹریشن", patReg: "مریض رجسٹریشن", createAcc: "اکاؤنٹ بنائیں", joinNow: "ابھی شامل ہوں", navHome: "ہوم", navDash: "ڈیش بورڈ", navProf: "پروفائل", liveStatus: "لائیو اسٹیٹس", totalContacts: "کل ایکٹیو صارفین", delAcc: "اکاؤنٹ ہمیشہ کے لیے ختم کریں", devName: "ڈویلپر: سدیس خان", devDesc: "ڈاکٹروں اور مریضوں کے رابطے کے لیے بنائی گئی ایپ۔", contactPrompt: "مدد کے لیے رابطہ کریں:", searchPh: "نام یا بیماری سے تلاش کریں..." }
-        };
+        let userRole = ''; let myKey = ''; let isEditMode = false;
 
         window.onload = function() {
             let saved = localStorage.getItem('doctorAppUser');
             if(saved) {
                 let u = JSON.parse(saved); userRole = u.role; myKey = u.key;
-                loginSuccess(u.name, u.spec);
+                loginSuccess(u);
             }
         };
 
-        function toggleHelp(show) { document.getElementById('helpModal').style.display = show ? 'flex' : 'none'; }
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ur' : 'en';
-            document.getElementById('mainBody').className = currentLang === 'ur' ? 'rtl' : 'ltr';
-            document.getElementById('langToggle').innerText = currentLang === 'ur' ? 'English' : 'اردو';
-            updateUI();
-        }
-
-        function updateUI() {
-            const t = translations[currentLang];
-            document.getElementById('txt-appTitle').innerText = t.appTitle;
-            document.getElementById('txt-helpBtn').innerText = t.helpBtn;
-            document.getElementById('txt-welcome').innerText = t.welcome;
-            document.getElementById('txt-imDoctor').innerText = t.imDoctor;
-            document.getElementById('txt-imPatient').innerText = t.imPatient;
-            document.getElementById('txt-navHome').innerText = t.navHome;
-            document.getElementById('txt-navDash').innerText = t.navDash;
-            document.getElementById('txt-navProf').innerText = t.navProf;
-            document.getElementById('txt-liveStatus').innerText = t.liveStatus;
-            document.getElementById('txt-totalContacts').innerText = t.totalContacts;
-            document.getElementById('txt-delAcc').innerText = t.delAcc;
-            document.getElementById('txt-devName').innerText = t.devName;
-            document.getElementById('txt-devDesc').innerText = t.devDesc;
-            document.getElementById('txt-contactPrompt').innerText = t.contactPrompt;
-            document.getElementById('searchInput').placeholder = t.searchPh;
-        }
-
         function showForm(role) {
+            userRole = (role === 'doc') ? 'doctors' : 'patients';
             document.getElementById('rolePage').classList.remove('active-page');
-            document.getElementById(role === 'doc' ? 'docFormPage' : 'pubFormPage').classList.add('active-page');
+            document.getElementById('formPage').classList.add('active-page');
+            document.getElementById('docOnlyFields').style.display = (role === 'doc') ? 'block' : 'none';
         }
 
-        function register(type) {
-            let name = type === 'doctors' ? document.getElementById('dName').value : document.getElementById('pName').value;
-            let phone = type === 'doctors' ? document.getElementById('dPhone').value : document.getElementById('pPhone').value;
-            let spec = type === 'doctors' ? document.getElementById('dSpec').value : 'Patient';
-            if(!name || !phone) return alert("Please fill all fields!");
-            let ref = db.ref(type).push();
-            let uData = {name, phone, spec, role: type, key: ref.key};
-            ref.set(uData).then(() => {
+        async function handleImageUpload(input) {
+            const file = input.files[0];
+            if(!file) return;
+            document.getElementById('previewImg').style.opacity = '0.4';
+            
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const res = await fetch('https://api.imgbb.com/1/upload?key=8e92f25f2356553531b402e864801123', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('finalPicUrl').value = data.data.url;
+                    document.getElementById('previewImg').src = data.data.url;
+                    document.getElementById('previewImg').style.opacity = '1';
+                }
+            } catch(e) { alert("Upload failed!"); }
+        }
+
+        function register() {
+            let uData = {
+                name: document.getElementById('uName').value,
+                phone: document.getElementById('uPhone').value,
+                city: document.getElementById('uCity').value,
+                pic: document.getElementById('finalPicUrl').value,
+                spec: (userRole === 'doctors') ? document.getElementById('uSpec').value : 'Patient',
+                edu: (userRole === 'doctors') ? document.getElementById('uEdu').value : '',
+                role: userRole
+            };
+
+            if(!uData.name || !uData.phone) return alert("Fill Name and Phone!");
+
+            let key = isEditMode ? myKey : db.ref(userRole).push().key;
+            uData.key = key;
+
+            db.ref(userRole + '/' + key).set(uData).then(() => {
                 localStorage.setItem('doctorAppUser', JSON.stringify(uData));
-                myKey = ref.key; userRole = type; loginSuccess(name, spec);
+                location.reload();
             });
         }
 
-        function loginSuccess(name, spec) {
+        function loginSuccess(u) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.getElementById('homePage').classList.add('active-page');
             document.getElementById('mainNav').style.display = 'flex';
-            document.getElementById('profName').innerText = name;
-            document.getElementById('profSpec').innerText = spec;
-            loadData(); updateUI();
+            document.getElementById('profName').innerText = u.name;
+            document.getElementById('profSpec').innerText = u.spec;
+            document.getElementById('profPicDisp').src = u.pic;
+            loadData();
         }
 
         function loadData() {
-            let path = userRole === 'doctors' ? 'patients' : 'doctors';
+            let path = (userRole === 'doctors') ? 'patients' : 'doctors';
             db.ref(path).on('value', snap => {
-                let html = ''; let count = 0;
+                let html = '';
                 snap.forEach(c => {
                     let d = c.val();
                     html += `<div class="card">
+                        <img src="${d.pic}" class="card-img">
                         <div class="user-info">
                             <b>${d.name}</b>
-                            <div style="font-size:12px; color:gray;">${d.spec}</div>
+                            <div style="color:var(--primary); font-size:11px;">${d.city}</div>
+                            <div>${d.spec} ${d.edu ? '('+d.edu+')' : ''}</div>
                         </div>
-                        <a href="https://wa.me/${d.phone.replace('+','')}" class="btn-wa">WhatsApp</a>
+                        <a href="https://wa.me/${d.phone}" class="btn-wa">WhatsApp</a>
                     </div>`;
-                    count++;
                 });
-                document.getElementById('listContainer').innerHTML = html || '<p style="text-align:center; color:gray; margin-top:50px;">Nothing to show</p>';
-                document.getElementById('statCount').innerText = count;
-                filterData(); // Keep filter active after data refresh
+                document.getElementById('listContainer').innerHTML = html || '<p style="text-align:center; margin-top:50px;">No records</p>';
             });
         }
 
-        // --- Filter Function ---
+        function editProfile() {
+            let u = JSON.parse(localStorage.getItem('doctorAppUser'));
+            isEditMode = true;
+            showForm(u.role === 'doctors' ? 'doc' : 'pub');
+            document.getElementById('formHeading').innerText = "Edit Profile";
+            document.getElementById('submitBtn').innerText = "Save Changes";
+            document.getElementById('uName').value = u.name;
+            document.getElementById('uPhone').value = u.phone;
+            document.getElementById('uCity').value = u.city;
+            document.getElementById('finalPicUrl').value = u.pic;
+            document.getElementById('previewImg').src = u.pic;
+            if(u.role === 'doctors') {
+                document.getElementById('uSpec').value = u.spec;
+                document.getElementById('uEdu').value = u.edu;
+            }
+        }
+
         function filterData() {
             let term = document.getElementById('searchInput').value.toLowerCase();
-            let cards = document.querySelectorAll('#listContainer .card');
-            cards.forEach(card => {
-                let text = card.innerText.toLowerCase();
-                card.style.display = text.includes(term) ? "flex" : "none";
+            document.querySelectorAll('.card').forEach(c => {
+                c.style.display = c.innerText.toLowerCase().includes(term) ? "flex" : "none";
             });
         }
 
-        function switchTab(pageId, el) {
+        function switchTab(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active-page');
+            document.getElementById(id).classList.add('active-page');
             el.classList.add('active');
         }
 
-        function deleteMyOwnAccount() {
-            if(confirm("Confirm: This will permanently delete your data?")) {
-                db.ref(userRole + '/' + myKey).remove().then(() => {
-                    localStorage.removeItem('doctorAppUser'); location.reload();
-                });
-            }
-        }
-        function logout() { if(confirm("Logout?")) { localStorage.removeItem('doctorAppUser'); location.reload(); } }
+        function logout() { localStorage.removeItem('doctorAppUser'); location.reload(); }
+        function toggleHelp(s) { document.getElementById('helpModal').style.display = s ? 'flex' : 'none'; }
     </script>
 </body>
 </html>
