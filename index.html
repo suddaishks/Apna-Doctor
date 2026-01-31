@@ -1,69 +1,106 @@
 <!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<html lang="en" id="mainHtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apna Doctor - WhatsApp Connect</title>
+    <title>Apna Doctor - Multi Lang</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     
     <style>
-        :root { --primary: #007bff; --whatsapp: #25D366; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; text-align: right; }
-        .auth-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; margin: 50px auto; text-align: center; display: none; }
-        .active { display: block; }
+        :root { --primary: #007bff; --success: #25D366; --light: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding-bottom: 75px; transition: 0.3s; }
         
-        /* ڈیش بورڈ ڈیزائن */
-        .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-size: 20px; }
-        .main-container { padding: 15px; max-width: 600px; margin: auto; }
-        
-        .item-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-right: 5px solid var(--primary); }
-        .info b { display: block; font-size: 17px; color: #333; }
-        .info span { font-size: 14px; color: #666; }
+        /* Language Style Helper */
+        .rtl { direction: rtl; text-align: right; }
+        .ltr { direction: ltr; text-align: left; }
 
-        /* واٹس ایپ بٹن */
-        .btn-whatsapp { background: var(--whatsapp); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .header { background: var(--primary); color: white; padding: 15px; text-align: center; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .lang-btn { background: white; color: var(--primary); border: none; padding: 5px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
+
+        .page { display: none; padding: 15px; animation: fadeIn 0.4s; }
+        .active-page { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .auth-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 85%; max-width: 400px; margin: 50px auto; text-align: center; }
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; border-inline-start: 5px solid var(--primary); }
         
-        .btn { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .btn-blue { background: var(--primary); color: white; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-wa { background: var(--success); color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; position: absolute; inset-inline-end: 15px; top: 15px; }
+        
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: none; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); border-top: 1px solid #eee; }
+        .nav-item { border: none; background: none; color: #666; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
     </style>
 </head>
-<body>
+<body class="ltr" id="mainBody">
 
-    <div id="startScreen" class="auth-card active">
-        <h2>اپنا ڈاکٹر</h2>
-        <p>اکاؤنٹ منتخب کریں</p>
-        <button class="btn btn-blue" onclick="showForm('doc')">میں ڈاکٹر ہوں</button>
-        <button class="btn" style="background:#eee;" onclick="showForm('pub')">میں مریض ہوں</button>
+    <div class="header">
+        <button class="lang-btn" onclick="toggleLanguage()" id="langToggle">اردو</button>
+        <span id="txt-appTitle">Apna Doctor</span>
+        <div style="width: 40px;"></div>
     </div>
 
-    <div id="docForm" class="auth-card">
-        <h3>ڈاکٹر رجسٹریشن</h3>
-        <input type="text" id="dName" placeholder="آپ کا نام">
-        <input type="text" id="dSpec" placeholder="آپ کی مہارت">
-        <input type="tel" id="dPhone" placeholder="واٹس ایپ نمبر (مثلاً 923001234567)">
-        <button class="btn btn-blue" onclick="register('doctors')">رجسٹر ہوں</button>
+    <div id="rolePage" class="page active-page">
+        <div class="auth-card">
+            <h2 id="txt-welcome">Welcome</h2>
+            <p id="txt-selectRole">Select your role to continue</p>
+            <button class="btn-main" onclick="showForm('doc')" id="txt-imDoctor">I am a Doctor</button>
+            <button class="btn-main" style="background:#6c757d; margin-top:10px;" onclick="showForm('pub')" id="txt-imPatient">I am a Patient</button>
+        </div>
     </div>
 
-    <div id="pubForm" class="auth-card">
-        <h3>مریض رجسٹریشن</h3>
-        <input type="text" id="pName" placeholder="آپ کا نام">
-        <input type="tel" id="pPhone" placeholder="واٹس ایپ نمبر (مثلاً 923001234567)">
-        <button class="btn btn-blue" onclick="register('patients')">رجسٹر ہوں</button>
+    <div id="docFormPage" class="page">
+        <div class="auth-card">
+            <h3 id="txt-docReg">Doctor Registration</h3>
+            <input type="text" id="dName" placeholder="Full Name">
+            <input type="text" id="dSpec" placeholder="Specialization">
+            <input type="tel" id="dPhone" placeholder="WhatsApp Number">
+            <button class="btn-main" onclick="register('doctors')" id="txt-createAcc">Create Account</button>
+        </div>
     </div>
 
-    <div id="docDash" style="display:none;">
-        <div class="header">مریضوں کے رابطے</div>
-        <div class="main-container" id="patientsList"></div>
+    <div id="pubFormPage" class="page">
+        <div class="auth-card">
+            <h3 id="txt-patReg">Patient Registration</h3>
+            <input type="text" id="pName" placeholder="Your Name">
+            <input type="tel" id="pPhone" placeholder="WhatsApp Number">
+            <button class="btn-main" onclick="register('patients')" id="txt-joinNow">Join Now</button>
+        </div>
     </div>
 
-    <div id="pubDash" style="display:none;">
-        <div class="header">دستیاب ڈاکٹرز</div>
-        <div class="main-container" id="doctorsList"></div>
+    <div id="homePage" class="page">
+        <div id="listContainer"></div>
     </div>
+
+    <div id="dashPage" class="page">
+        <div class="card" style="text-align:center; padding: 30px;">
+            <h3 id="txt-liveStatus">Live Status</h3>
+            <p style="color:green; font-weight:bold;">● <span id="txt-online">Online</span></p>
+            <hr>
+            <p id="txt-totalContacts">Total Contacts:</p> <b id="statCount">0</b>
+        </div>
+    </div>
+
+    <div id="profilePage" class="page">
+        <div class="card" style="text-align:center;">
+            <div style="font-size:50px;">👤</div>
+            <h3 id="profName">-</h3>
+            <p id="profSpec">-</p>
+            <button class="btn-main" style="background:#dc3545;" onclick="location.reload()" id="txt-logout">Logout</button>
+        </div>
+    </div>
+
+    <nav class="nav-bar" id="mainNav">
+        <button class="nav-item active" onclick="switchTab('homePage', this)"><span id="txt-navHome">Home</span></button>
+        <button class="nav-item" onclick="switchTab('dashPage', this)"><span id="txt-navDash">Dashboard</span></button>
+        <button class="nav-item" onclick="switchTab('profilePage', this)"><span id="txt-navProf">Profile</span></button>
+    </nav>
 
     <script>
+        // Firebase (Same as before)
         const firebaseConfig = {
             apiKey: "AIzaSyDVJq00WDiMIZTuhaZnGKLeqLoBhOAUgWc",
             authDomain: "apna-doctor-d928f.firebaseapp.com",
@@ -74,59 +111,118 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function showForm(type) {
-            document.getElementById('startScreen').classList.remove('active');
-            if(type === 'doc') document.getElementById('docForm').classList.add('active');
-            else document.getElementById('pubForm').classList.add('active');
+        let currentLang = 'en';
+        let userRole = '';
+
+        const translations = {
+            en: {
+                appTitle: "Apna Doctor", welcome: "Welcome", selectRole: "Select your role to continue",
+                imDoctor: "I am a Doctor", imPatient: "I am a Patient", docReg: "Doctor Registration",
+                patReg: "Patient Registration", createAcc: "Create Account", joinNow: "Join Now",
+                navHome: "Home", navDash: "Dashboard", navProf: "Profile", logout: "Logout",
+                liveStatus: "Live Status", online: "Online", totalContacts: "Total Contacts",
+                namePh: "Full Name", specPh: "Specialization", numPh: "WhatsApp Number",
+                loading: "Loading Data...", noData: "No data available"
+            },
+            ur: {
+                appTitle: "اپنا ڈاکٹر", welcome: "خوش آمدید", selectRole: "جاری رکھنے کے لیے اپنا رول منتخب کریں",
+                imDoctor: "میں ڈاکٹر ہوں", imPatient: "میں مریض ہوں", docReg: "ڈاکٹر رجسٹریشن",
+                patReg: "مریض رجسٹریشن", createAcc: "اکاؤنٹ بنائیں", joinNow: "رجسٹر ہوں",
+                navHome: "ہوم", navDash: "ڈیش بورڈ", navProf: "پروفائل", logout: "لاگ آؤٹ",
+                liveStatus: "لائیو اسٹیٹس", online: "آن لائن", totalContacts: "کل رابطے",
+                namePh: "مکمل نام", specPh: "مہارت", numPh: "واٹس ایپ نمبر",
+                loading: "ڈیٹا لوڈ ہو رہا ہے...", noData: "کوئی ڈیٹا موجود نہیں"
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ur' : 'en';
+            const body = document.getElementById('mainBody');
+            const btn = document.getElementById('langToggle');
+            
+            if(currentLang === 'ur') {
+                body.className = 'rtl';
+                btn.innerText = 'English';
+            } else {
+                body.className = 'ltr';
+                btn.innerText = 'اردو';
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            const t = translations[currentLang];
+            document.getElementById('txt-appTitle').innerText = t.appTitle;
+            document.getElementById('txt-welcome').innerText = t.welcome;
+            document.getElementById('txt-selectRole').innerText = t.selectRole;
+            document.getElementById('txt-imDoctor').innerText = t.imDoctor;
+            document.getElementById('txt-imPatient').innerText = t.imPatient;
+            document.getElementById('txt-docReg').innerText = t.docReg;
+            document.getElementById('txt-patReg').innerText = t.patReg;
+            document.getElementById('txt-createAcc').innerText = t.createAcc;
+            document.getElementById('txt-joinNow').innerText = t.joinNow;
+            document.getElementById('txt-navHome').innerText = t.navHome;
+            document.getElementById('txt-navDash').innerText = t.navDash;
+            document.getElementById('txt-navProf').innerText = t.navProf;
+            document.getElementById('txt-logout').innerText = t.logout;
+            document.getElementById('txt-liveStatus').innerText = t.liveStatus;
+            document.getElementById('txt-online').innerText = t.online;
+            document.getElementById('txt-totalContacts').innerText = t.totalContacts;
+            
+            // Input Placeholders
+            document.getElementById('dName').placeholder = t.namePh;
+            document.getElementById('pName').placeholder = t.namePh;
+            document.getElementById('dSpec').placeholder = t.specPh;
+            document.getElementById('dPhone').placeholder = t.numPh;
+            document.getElementById('pPhone').placeholder = t.numPh;
+        }
+
+        function showForm(role) {
+            document.getElementById('rolePage').classList.remove('active-page');
+            document.getElementById(role === 'doc' ? 'docFormPage' : 'pubFormPage').classList.add('active-page');
         }
 
         function register(type) {
-            let name = (type === 'doctors') ? document.getElementById('dName').value : document.getElementById('pName').value;
-            let phone = (type === 'doctors') ? document.getElementById('dPhone').value : document.getElementById('pPhone').value;
-            let spec = (type === 'doctors') ? document.getElementById('dSpec').value : "";
+            userRole = type;
+            let name = type === 'doctors' ? document.getElementById('dName').value : document.getElementById('pName').value;
+            let phone = type === 'doctors' ? document.getElementById('dPhone').value : document.getElementById('pPhone').value;
+            let spec = type === 'doctors' ? document.getElementById('dSpec').value : 'Patient';
 
-            if(!name || !phone) { alert("نام اور نمبر ضروری ہے!"); return; }
+            if(!name || !phone) return alert("Fill all fields!");
 
-            // واٹس ایپ نمبر سے پلس (+) ہٹانا اگر مریض ڈال دے
-            phone = phone.replace('+', '');
-
-            let data = { name, phone, spec };
-            db.ref(type).push(data).then(() => {
-                document.querySelectorAll('.auth-card').forEach(c => c.classList.remove('active'));
-                loadDashboard(type === 'doctors' ? 'doc' : 'pub');
+            db.ref(type).push({name, phone, spec}).then(() => {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+                document.getElementById('homePage').classList.add('active-page');
+                document.getElementById('mainNav').style.display = 'flex';
+                document.getElementById('profName').innerText = name;
+                document.getElementById('profSpec').innerText = spec;
+                loadData();
             });
         }
 
-        function loadDashboard(role) {
-            if(role === 'doc') {
-                document.getElementById('docDash').style.display = 'block';
-                db.ref('patients').on('value', (snap) => {
-                    let html = '';
-                    snap.forEach(c => {
-                        let p = c.val();
-                        html += `
-                        <div class="item-card">
-                            <div class="info"><b>${p.name}</b><span>مریض</span></div>
-                            <a href="https://wa.me/${p.phone}?text=ہیلو ${p.name}، میں ڈاکٹر بات کر رہا ہوں" class="btn-whatsapp">WhatsApp</a>
-                        </div>`;
-                    });
-                    document.getElementById('patientsList').innerHTML = html || 'کوئی مریض نہیں';
+        function switchTab(pageId, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active-page');
+            el.classList.add('active');
+        }
+
+        function loadData() {
+            let path = userRole === 'doctors' ? 'patients' : 'doctors';
+            db.ref(path).on('value', snap => {
+                let html = '';
+                let count = 0;
+                snap.forEach(c => {
+                    let d = c.val();
+                    html += `<div class="card">
+                        <b>${d.name}</b><br><small>${d.spec}</small>
+                        <a href="https://wa.me/${d.phone}" class="btn-wa">WhatsApp</a>
+                    </div>`;
+                    count++;
                 });
-            } else {
-                document.getElementById('pubDash').style.display = 'block';
-                db.ref('doctors').on('value', (snap) => {
-                    let html = '';
-                    snap.forEach(c => {
-                        let d = c.val();
-                        html += `
-                        <div class="item-card">
-                            <div class="info"><b>ڈاکٹر ${d.name}</b><span>${d.spec}</span></div>
-                            <a href="https://wa.me/${d.phone}?text=ہیلو ڈاکٹر ${d.name}، مجھے مشورہ چاہیے" class="btn-whatsapp">WhatsApp</a>
-                        </div>`;
-                    });
-                    document.getElementById('doctorsList').innerHTML = html || 'کوئی ڈاکٹر نہیں';
-                });
-            }
+                document.getElementById('listContainer').innerHTML = html || translations[currentLang].noData;
+                document.getElementById('statCount').innerText = count;
+            });
         }
     </script>
 </body>
