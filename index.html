@@ -3,93 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apna Doctor</title>
+    <title>Apna Doctor - Healthcare</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        :root { --primary: #3498db; --secondary: #2ecc71; --dark: #2c3e50; --light: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light); margin: 0; padding: 0; }
         
-        /* لوڈنگ اینیمیشن (لوگو گھومنا) */
-        #splashScreen { text-align: center; }
-        .loader { width: 80px; height: 80px; border: 8px solid #ddd; border-top: 8px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        /* 1. سپلیش اسکرین */
+        #splash { position: fixed; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+        .loader { width: 60px; height: 60px; border: 6px solid #f3f3f3; border-top: 6px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* مین کارڈز */
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; display: none; }
-        .active { display: block; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* کارڈ اور فارم */
+        .container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; display: none; }
+        .active { display: block; animation: slideUp 0.4s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1 { color: #2c3e50; margin-bottom: 10px; }
-        .role-box { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .btn { padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
-        .btn-doctor { background: #3498db; color: white; }
-        .btn-public { background: #2ecc71; color: white; }
-        .btn:hover { transform: scale(1.05); opacity: 0.9; }
+        /* بٹن اور ان پٹ */
+        .btn { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-doc { background: var(--primary); color: white; }
+        .btn-pub { background: var(--secondary); color: white; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
 
-        /* فارم ڈیزائن */
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        /* ڈیش بورڈ ڈیزائن */
+        .dashboard-ui { display: none; padding: 20px; }
+        .nav { background: var(--primary); color: white; padding: 15px; text-align: center; font-size: 20px; position: sticky; top: 0; }
+        .section-title { color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 5px; margin-top: 20px; text-align: right; }
+        .item-card { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .status-dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; display: inline-block; margin-left: 8px; }
     </style>
 </head>
 <body>
 
-    <div id="splashScreen">
+    <div id="splash">
         <div class="loader"></div>
-        <h2 style="color: #3498db;">اپنا ڈاکٹر</h2>
-        <p>لوڈ ہو رہا ہے...</p>
+        <h2 style="color: var(--primary); margin-top: 15px;">اپنا ڈاکٹر</h2>
     </div>
 
-    <div id="roleScreen" class="card">
-        <h1>خوش آمدید</h1>
-        <p>آپ کا تعلق کس شعبے سے ہے؟</p>
-        <div class="role-box">
-            <button class="btn btn-doctor" onclick="showForm('doctor')">میں ڈاکٹر ہوں</button>
-            <button class="btn btn-public" onclick="showForm('public')">میں مریض (عوام) ہوں</button>
+    <div class="container">
+        <div id="roleStep" class="card">
+            <h1>خوش آمدید</h1>
+            <p>آپ کا رول کیا ہے؟</p>
+            <button class="btn btn-doc" onclick="showForm('doc')">میں ڈاکٹر ہوں</button>
+            <button class="btn btn-pub" onclick="showForm('pub')">میں مریض ہوں</button>
+        </div>
+
+        <div id="docForm" class="card">
+            <h2>ڈاکٹر رجسٹریشن</h2>
+            <input type="text" id="dName" placeholder="مکمل نام">
+            <input type="text" id="dSpec" placeholder="ماہرِ (مثلاً بچوں کے ڈاکٹر)">
+            <input type="tel" id="dPhone" placeholder="موبائل نمبر">
+            <button class="btn btn-doc" onclick="openDashboard('doc')">ڈیش بورڈ کھولیں</button>
+        </div>
+
+        <div id="pubForm" class="card">
+            <h2>مریض کی معلومات</h2>
+            <input type="text" id="pName" placeholder="آپ کا نام">
+            <input type="tel" id="pPhone" placeholder="موبائل نمبر">
+            <input type="number" id="pAge" placeholder="آپ کی عمر">
+            <button class="btn btn-pub" onclick="openDashboard('pub')">ڈاکٹرز دیکھیں</button>
         </div>
     </div>
 
-    <div id="doctorForm" class="card">
-        <h1>ڈاکٹر رجسٹریشن</h1>
-        <input type="text" id="docName" placeholder="مکمل نام">
-        <input type="text" id="specialist" placeholder="آپ کس چیز کے ماہر ہیں؟ (مثلاً دل کے ڈاکٹر)">
-        <input type="text" id="clinic" placeholder="کلینک کا پتہ">
-        <button class="btn btn-doctor" onclick="finish('doctor')">رجسٹریشن مکمل کریں</button>
+    <div id="docDash" class="dashboard-ui">
+        <div class="nav">ڈاکٹر ڈیش بورڈ</div>
+        <div style="max-width: 600px; margin: auto;">
+            <h3 class="section-title">میری پروفائل</h3>
+            <div class="item-card">
+                <div><strong id="displayDocName"></strong><br><span id="displayDocSpec"></span></div>
+                <button style="border:none; color:var(--primary); background:none;">ایڈٹ کریں</button>
+            </div>
+
+            <h3 class="section-title">مریضوں کے رابطے</h3>
+            <div class="item-card">
+                <div><strong>سلمان احمد</strong><br>مسئلہ: تیز بخار</div>
+                <button class="btn-pub" style="padding: 5px 10px; border-radius: 5px; border:none; color:white;">رابطہ کریں</button>
+            </div>
+        </div>
     </div>
 
-    <div id="publicForm" class="card">
-        <h1>مریض کی معلومات</h1>
-        <input type="text" id="patientName" placeholder="آپ کا نام">
-        <input type="number" id="patientAge" placeholder="آپ کی عمر">
-        <select id="gender">
-            <option value="">جنس منتخب کریں</option>
-            <option value="male">مرد</option>
-            <option value="female">خاتون</option>
-        </select>
-        <button class="btn btn-public" onclick="finish('public')">آگے بڑھیں</button>
+    <div id="pubDash" class="dashboard-ui">
+        <div class="nav">دستیاب ڈاکٹرز</div>
+        <div style="max-width: 600px; margin: auto;">
+            <h3 class="section-title">آن لائن ڈاکٹرز</h3>
+            <div class="item-card">
+                <div><span class="status-dot"></span> <strong>ڈاکٹر علی احمد</strong><br>ماہرِ امراضِ قلب</div>
+                <button class="btn-doc" style="padding: 5px 10px; border-radius: 5px; border:none; color:white;">اپائنٹمنٹ</button>
+            </div>
+            <div class="item-card">
+                <div><span class="status-dot"></span> <strong>ڈاکٹر مریم عثمان</strong><br>جنرل فزیشن</div>
+                <button class="btn-doc" style="padding: 5px 10px; border-radius: 5px; border:none; color:white;">اپائنٹمنٹ</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 3 سیکنڈ بعد سپلیش اسکرین ختم کر کے رول سلیکشن دکھائیں
+        // لوڈنگ ختم کریں
         setTimeout(() => {
-            document.getElementById('splashScreen').style.display = 'none';
-            document.getElementById('roleScreen').classList.add('active');
-        }, 3000);
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('roleStep').classList.add('active');
+        }, 2000);
 
-        // فارم دکھانے کا فنکشن
-        function showForm(role) {
-            document.getElementById('roleScreen').classList.remove('active');
-            if(role === 'doctor') {
-                document.getElementById('doctorForm').classList.add('active');
-            } else {
-                document.getElementById('publicForm').classList.add('active');
-            }
+        function showForm(type) {
+            document.getElementById('roleStep').classList.remove('active');
+            if(type === 'doc') document.getElementById('docForm').classList.add('active');
+            else document.getElementById('pubForm').classList.add('active');
         }
 
-        // آخری مرحلہ
-        function finish(role) {
-            if(role === 'doctor') {
-                let name = document.getElementById('docName').value;
-                alert("ڈاکٹر " + name + "! آپ کا اکاؤنٹ تیار ہے۔ اب آپ مریض دیکھ سکتے ہیں۔");
+        function openDashboard(type) {
+            // فارمز چھپائیں
+            document.getElementById('docForm').classList.remove('active');
+            document.getElementById('pubForm').classList.remove('active');
+            document.querySelector('.container').style.display = 'none';
+
+            if(type === 'doc') {
+                document.getElementById('displayDocName').innerText = "ڈاکٹر " + document.getElementById('dName').value;
+                document.getElementById('displayDocSpec').innerText = document.getElementById('dSpec').value;
+                document.getElementById('docDash').style.display = 'block';
             } else {
-                let name = document.getElementById('patientName').value;
-                alert("خوش آمدید " + name + "! اب آپ ڈاکٹر تلاش کر سکتے ہیں۔");
+                document.getElementById('pubDash').style.display = 'block';
             }
         }
     </script>
