@@ -4,88 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apna Doctor</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); width: 90%; max-width: 380px; text-align: center; display: none; }
-        .active { display: block; }
-        h2 { color: #2c3e50; }
-        .btn { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .btn-google { background-color: #4285F4; color: white; border: 1px solid #357abd; }
-        .btn-save { background-color: #27ae60; color: white; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        /* لوڈنگ اینیمیشن (لوگو گھومنا) */
+        #splashScreen { text-align: center; }
+        .loader { width: 80px; height: 80px; border: 8px solid #ddd; border-top: 8px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* مین کارڈز */
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; display: none; }
+        .active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { color: #2c3e50; margin-bottom: 10px; }
+        .role-box { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .btn { padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
+        .btn-doctor { background: #3498db; color: white; }
+        .btn-public { background: #2ecc71; color: white; }
+        .btn:hover { transform: scale(1.05); opacity: 0.9; }
+
+        /* فارم ڈیزائن */
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-    <div id="loginScreen" class="card active">
-        <h2>اپنا ڈاکٹر</h2>
-        <p>جاری رکھنے کے لیے لاگ ان کریں</p>
-        <button class="btn btn-google" onclick="loginWithGoogle()">Google کے ساتھ لاگ ان کریں</button>
+    <div id="splashScreen">
+        <div class="loader"></div>
+        <h2 style="color: #3498db;">اپنا ڈاکٹر</h2>
+        <p>لوڈ ہو رہا ہے...</p>
     </div>
 
-    <div id="setupScreen" class="card">
-        <h3>پروفائل مکمل کریں</h3>
-        <p>آپ کا نام اور رول کیا ہے؟</p>
-        <input type="text" id="userName" placeholder="آپ کا نام">
-        <select id="userRole">
-            <option value="">رول منتخب کریں...</option>
-            <option value="doctor">میں ڈاکٹر ہوں (Doctor)</option>
-            <option value="public">میں مریض ہوں (Public)</option>
+    <div id="roleScreen" class="card">
+        <h1>خوش آمدید</h1>
+        <p>آپ کا تعلق کس شعبے سے ہے؟</p>
+        <div class="role-box">
+            <button class="btn btn-doctor" onclick="showForm('doctor')">میں ڈاکٹر ہوں</button>
+            <button class="btn btn-public" onclick="showForm('public')">میں مریض (عوام) ہوں</button>
+        </div>
+    </div>
+
+    <div id="doctorForm" class="card">
+        <h1>ڈاکٹر رجسٹریشن</h1>
+        <input type="text" id="docName" placeholder="مکمل نام">
+        <input type="text" id="specialist" placeholder="آپ کس چیز کے ماہر ہیں؟ (مثلاً دل کے ڈاکٹر)">
+        <input type="text" id="clinic" placeholder="کلینک کا پتہ">
+        <button class="btn btn-doctor" onclick="finish('doctor')">رجسٹریشن مکمل کریں</button>
+    </div>
+
+    <div id="publicForm" class="card">
+        <h1>مریض کی معلومات</h1>
+        <input type="text" id="patientName" placeholder="آپ کا نام">
+        <input type="number" id="patientAge" placeholder="آپ کی عمر">
+        <select id="gender">
+            <option value="">جنس منتخب کریں</option>
+            <option value="male">مرد</option>
+            <option value="female">خاتون</option>
         </select>
-        <button class="btn btn-save" onclick="saveProfile()">محفوظ کریں اور آگے بڑھیں</button>
+        <button class="btn btn-public" onclick="finish('public')">آگے بڑھیں</button>
     </div>
 
     <script>
-        // یہ وہ کوڈ ہے جو آپ نے ابھی بھیجا ہے (بالکل ٹھیک)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDVJq00WDiMIZTuhaZnGKLeqLoBhOAUgWc",
-            authDomain: "apna-doctor-d928f.firebaseapp.com",
-            projectId: "apna-doctor-d928f",
-            storageBucket: "apna-doctor-d928f.firebasestorage.app",
-            messagingSenderId: "488555434869",
-            appId: "1:488555434869:web:2f707ea67409e52ecd793c",
-            measurementId: "G-STENYD9ZKQ"
-        };
+        // 3 سیکنڈ بعد سپلیش اسکرین ختم کر کے رول سلیکشن دکھائیں
+        setTimeout(() => {
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('roleScreen').classList.add('active');
+        }, 3000);
 
-        // فائر بیس شروع کریں
-        firebase.initializeApp(firebaseConfig);
-
-        // گوگل لاگ ان (موبائل کے لیے ری ڈائریکٹ طریقہ)
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithRedirect(provider);
+        // فارم دکھانے کا فنکشن
+        function showForm(role) {
+            document.getElementById('roleScreen').classList.remove('active');
+            if(role === 'doctor') {
+                document.getElementById('doctorForm').classList.add('active');
+            } else {
+                document.getElementById('publicForm').classList.add('active');
+            }
         }
 
-        // لاگ ان ہو کر واپس آنے کے بعد کا عمل
-        firebase.auth().getRedirectResult().then((result) => {
-            if (result && result.user) {
-                document.getElementById('userName').value = result.user.displayName;
-                document.getElementById('loginScreen').classList.remove('active');
-                document.getElementById('setupScreen').classList.add('active');
+        // آخری مرحلہ
+        function finish(role) {
+            if(role === 'doctor') {
+                let name = document.getElementById('docName').value;
+                alert("ڈاکٹر " + name + "! آپ کا اکاؤنٹ تیار ہے۔ اب آپ مریض دیکھ سکتے ہیں۔");
+            } else {
+                let name = document.getElementById('patientName').value;
+                alert("خوش آمدید " + name + "! اب آپ ڈاکٹر تلاش کر سکتے ہیں۔");
             }
-        }).catch((error) => {
-            console.error("Auth Error:", error);
-            if(error.code !== 'auth/redirect-cancelled-by-user') {
-                alert("مسئلہ: " + error.message);
-            }
-        });
-
-        // پروفائل سیو کرنے کا فنکشن
-        function saveProfile() {
-            const name = document.getElementById('userName').value;
-            const role = document.getElementById('userRole').value;
-            
-            if(!name || !role) {
-                alert("براہ کرم تمام خانے پُر کریں");
-                return;
-            }
-
-            alert("شکریہ " + name + "! آپ کا رول " + role + " محفوظ ہو گیا۔");
-            // یہاں سے ہم ڈاکٹر یا پبلک ڈیش بورڈ پر جائیں گے
         }
     </script>
 </body>
