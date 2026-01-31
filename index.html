@@ -8,109 +8,124 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     
     <style>
-        :root { --primary: #007bff; --success: #25D366; --danger: #dc3545; --light: #f8f9fa; }
+        :root { --primary: #007bff; --success: #25D366; --dark: #343a40; --light: #f8f9fa; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding-bottom: 80px; transition: 0.3s; overflow-x: hidden; }
         .rtl { direction: rtl; text-align: right; }
         .ltr { direction: ltr; text-align: left; }
 
-        .header { background: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); height: 55px; box-sizing: border-box; }
-        .head-btn { background: white; color: var(--primary); border: none; padding: 5px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .header { background: var(--primary); color: white; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; height: 55px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .head-btn { background: white; color: var(--primary); border: none; padding: 5px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; position: relative; animation: slideUp 0.3s ease; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
+
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: white; border-bottom: 1px solid #eee; }
+        .stat-card { background: var(--light); padding: 12px; border-radius: 12px; text-align: center; border: 1px solid #eee; }
+        .stat-card p { margin: 5px 0 0; font-size: 18px; font-weight: bold; color: var(--primary); }
 
         .search-box { background: white; padding: 10px; position: sticky; top: 55px; z-index: 90; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .search-input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; outline: none; transition: 0.3s; font-size: 14px; box-sizing: border-box; }
+        .search-input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; outline: none; font-size: 14px; box-sizing: border-box; }
 
-        /* Profile Picture Styling */
-        .pic-container { width: 90px; height: 90px; border-radius: 50%; background: #eee; margin: 10px auto; overflow: hidden; border: 3px solid var(--primary); cursor: pointer; position: relative; }
-        .pic-container img { width: 100%; height: 100%; object-fit: cover; }
-        .upload-txt { font-size: 10px; color: var(--primary); margin-bottom: 10px; font-weight: bold; }
+        .card { background: white; padding: 15px; border-radius: 15px; margin: 10px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; border-inline-start: 6px solid var(--primary); cursor: pointer; }
+        .user-info { flex: 1; }
+        .user-label { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 5px; margin-inline-start: 5px; }
+        .doc-label { background: #e7f3ff; color: #007bff; }
+        .pub-label { background: #f0f0f0; color: #666; }
+        .btn-wa { background: var(--success); color: white; text-decoration: none; padding: 10px; border-radius: 10px; font-size: 14px; font-weight: bold; display: block; margin-top: 15px; }
 
-        .card { 
-            background: white; padding: 12px; border-radius: 15px; margin-bottom: 12px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; border-inline-start: 6px solid var(--primary);
-        }
-        .card-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #ddd; }
-        .user-info { flex: 1; min-width: 0; }
-        .user-info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; }
-        
-        .btn-wa { background: var(--success); color: white; text-decoration: none; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: bold; }
-
-        .page { display: none; padding: 15px; animation: fadeIn 0.4s; }
+        .page { display: none; animation: fadeIn 0.3s; }
         .active-page { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .auth-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 85%; max-width: 400px; margin: 20px auto; text-align: center; }
-        input { width: 100%; padding: 13px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
-        .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .auth-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 85%; max-width: 400px; margin: 30px auto; text-align: center; }
+        input { width: 100%; padding: 13px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: none; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; }
         .nav-item { border: none; background: none; color: #888; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; flex: 1; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
+        
+        /* Details View Styling */
+        .detail-item { text-align: left; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
+        .detail-item b { color: var(--primary); }
     </style>
 </head>
 <body class="ltr" id="mainBody">
 
     <div class="header">
         <button class="head-btn" onclick="toggleLanguage()" id="langToggle">اردو</button>
-        <span id="txt-appTitle" style="font-weight: bold; font-size: 18px;">Apna Doctor</span>
+        <span id="txt-appTitle" style="font-weight: bold;">Apna Doctor</span>
         <button class="head-btn" onclick="toggleHelp(true)" id="txt-helpBtn">Help</button>
+    </div>
+
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div id="detIcon" style="font-size: 50px;">👤</div>
+            <h3 id="detName" style="margin: 10px 0;">Name</h3>
+            <div id="detContent"></div>
+            <a id="detWaLink" href="#" class="btn-wa">WhatsApp Contact</a>
+            <button onclick="document.getElementById('detailsModal').style.display='none'" style="margin-top:15px; border:none; background:none; color:gray; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin:0; color:var(--primary);">👨‍💻 Help Center</h2>
+            <p style="font-size: 14px; color:#555;">Developed by <b>Suddais Ahmed</b>Please contact us if you have any problems. <br></p>
+            <a href="https://wa.me/923182187575" class="btn-wa">WhatsApp Help</a>
+            <button onclick="toggleHelp(false)" style="margin-top:10px; border:none; background:none; color:gray; cursor:pointer;">Close</button>
+        </div>
     </div>
 
     <div id="rolePage" class="page active-page">
         <div class="auth-card">
             <h2 id="txt-welcome">Welcome</h2>
-            <button class="btn-main" onclick="showForm('doc')">I am a Doctor</button>
-            <button class="btn-main" style="background:#6c757d;" onclick="showForm('pub')">I am a Patient</button>
+            <button class="btn-main" onclick="showForm('doc')" id="btn-iDoc">I am a Doctor</button>
+            <button class="btn-main" style="background:#6c757d; margin-top:10px;" onclick="showForm('pub')" id="btn-iPub">I am a Patient</button>
         </div>
     </div>
 
     <div id="formPage" class="page">
         <div class="auth-card">
             <h3 id="formHeading">Registration</h3>
-            
-            <div class="pic-container" onclick="document.getElementById('fileInput').click()">
-                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" id="previewImg">
-            </div>
-            <div class="upload-txt">Click to Upload Photo</div>
-            <input type="file" id="fileInput" hidden accept="image/*" onchange="handleImageUpload(this)">
-            <input type="hidden" id="finalPicUrl" value="https://cdn-icons-png.flaticon.com/512/149/149071.png">
-
             <input type="text" id="uName" placeholder="Full Name">
             <div id="docOnlyFields" style="display:none">
-                <input type="text" id="uSpec" placeholder="Specialization (Heart, Skin, etc.)">
-                <input type="text" id="uEdu" placeholder="Education / Diploma">
+                <input type="text" id="uSpec" placeholder="Specialization">
+                <input type="text" id="uEdu" placeholder="Education">
             </div>
             <input type="text" id="uCity" placeholder="City / Address">
             <input type="tel" id="uPhone" placeholder="WhatsApp (923...)">
             <button class="btn-main" id="submitBtn" onclick="register()">Create Account</button>
-            <button onclick="location.reload()" style="background:none; border:none; color:gray; margin-top:10px;">Cancel</button>
+            <button onclick="location.reload()" style="background:none; border:none; color:gray; margin-top:10px; cursor:pointer;">Cancel</button>
         </div>
     </div>
 
-    <div id="homePage" class="page" style="padding:0;">
-        <div class="search-box">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search by name or city..." onkeyup="filterData()">
+    <div id="homePage" class="page">
+        <div class="dashboard">
+            <div class="stat-card"><h4 id="txt-statDoc" style="margin:0; font-size:12px;">Doctors</h4><p id="countDoc">0</p></div>
+            <div class="stat-card"><h4 id="txt-statPub" style="margin:0; font-size:12px;">Patients</h4><p id="countPub">0</p></div>
         </div>
-        <div id="listContainer" style="padding: 15px;"></div>
+        <div class="search-box"><input type="text" id="searchInput" class="search-input" placeholder="Search..." onkeyup="filterData()"></div>
+        <div id="listContainer"></div>
     </div>
 
     <div id="profilePage" class="page">
         <div class="auth-card">
-            <div class="pic-container">
-                <img src="" id="profPicDisp">
+            <div id="profIconLarge" style="font-size: 60px; margin-bottom: 10px;">👤</div>
+            <h3 id="profName">-</h3>
+            <p id="profSpec" style="color: #666; margin-bottom: 20px;">-</p>
+            <div style="background:var(--light); padding:15px; border-radius:12px; margin-bottom:15px; text-align:left; font-size:14px;">
+                <b>City:</b> <span id="profCity">-</span><br>
+                <b>Phone:</b> <span id="profPhone">-</span>
             </div>
-            <h3 id="profName" style="margin:0;">-</h3>
-            <p id="profSpec" style="color: #666; margin: 5px 0;">-</p>
             <button class="btn-main" onclick="editProfile()">Edit Profile</button>
-            <button onclick="logout()" style="border:none; background:none; color:var(--primary); text-decoration: underline; margin-top:15px;">Logout</button>
+            <button onclick="logout()" style="border:none; background:none; color:var(--primary); text-decoration: underline; margin-top:15px; cursor:pointer;">Logout</button>
         </div>
     </div>
 
     <nav class="nav-bar" id="mainNav">
-        <button class="nav-item active" onclick="switchTab('homePage', this)">🏠<br>Home</button>
-        <button class="nav-item" onclick="switchTab('profilePage', this)">👤<br>Profile</button>
+        <button class="nav-item active" onclick="switchTab('homePage', this)">🏠<br><span id="nav-home">Home</span></button>
+        <button class="nav-item" onclick="switchTab('profilePage', this)">👤<br><span id="nav-prof">Profile</span></button>
     </nav>
 
     <script>
@@ -124,7 +139,29 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let userRole = ''; let myKey = ''; let isEditMode = false;
+        let userRole = ''; let myKey = ''; let isEditMode = false; let currentLang = 'en';
+
+        const langData = {
+            en: { welcome: "Welcome", doc: "I am a Doctor", pub: "I am a Patient", home: "Home", prof: "Profile", statD: "Doctors", statP: "Patients" },
+            ur: { welcome: "خوش آمدید", doc: "میں ڈاکٹر ہوں", pub: "میں مریض ہوں", home: "ہوم", prof: "پروفائل", statD: "ڈاکٹرز", statP: "مریض" }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ur' : 'en';
+            document.getElementById('langToggle').innerText = currentLang === 'en' ? 'اردو' : 'English';
+            document.body.className = currentLang === 'ur' ? 'rtl' : 'ltr';
+            let l = langData[currentLang];
+            document.getElementById('txt-welcome').innerText = l.welcome;
+            document.getElementById('btn-iDoc').innerText = l.doc;
+            document.getElementById('btn-iPub').innerText = l.pub;
+            document.getElementById('nav-home').innerText = l.home;
+            document.getElementById('nav-prof').innerText = l.prof;
+            document.getElementById('txt-statDoc').innerText = l.statD;
+            document.getElementById('txt-statPub').innerText = l.statP;
+            loadData();
+        }
+
+        function toggleHelp(s) { document.getElementById('helpModal').style.display = s ? 'flex' : 'none'; }
 
         window.onload = function() {
             let saved = localStorage.getItem('doctorAppUser');
@@ -132,35 +169,14 @@
                 let u = JSON.parse(saved); userRole = u.role; myKey = u.key;
                 loginSuccess(u);
             }
+            updateStats();
         };
 
         function showForm(role) {
             userRole = (role === 'doc') ? 'doctors' : 'patients';
-            document.getElementById('rolePage').classList.remove('active-page');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.getElementById('formPage').classList.add('active-page');
             document.getElementById('docOnlyFields').style.display = (role === 'doc') ? 'block' : 'none';
-        }
-
-        async function handleImageUpload(input) {
-            const file = input.files[0];
-            if(!file) return;
-            document.getElementById('previewImg').style.opacity = '0.4';
-            
-            const formData = new FormData();
-            formData.append('image', file);
-
-            try {
-                const res = await fetch('https://api.imgbb.com/1/upload?key=8e92f25f2356553531b402e864801123', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                if(data.success) {
-                    document.getElementById('finalPicUrl').value = data.data.url;
-                    document.getElementById('previewImg').src = data.data.url;
-                    document.getElementById('previewImg').style.opacity = '1';
-                }
-            } catch(e) { alert("Upload failed!"); }
         }
 
         function register() {
@@ -168,17 +184,13 @@
                 name: document.getElementById('uName').value,
                 phone: document.getElementById('uPhone').value,
                 city: document.getElementById('uCity').value,
-                pic: document.getElementById('finalPicUrl').value,
-                spec: (userRole === 'doctors') ? document.getElementById('uSpec').value : 'Patient',
+                spec: (userRole === 'doctors') ? document.getElementById('uSpec').value : (currentLang === 'ur' ? 'مریض' : 'Patient'),
                 edu: (userRole === 'doctors') ? document.getElementById('uEdu').value : '',
                 role: userRole
             };
-
-            if(!uData.name || !uData.phone) return alert("Fill Name and Phone!");
-
+            if(!uData.name || !uData.phone) return alert("Fill all fields!");
             let key = isEditMode ? myKey : db.ref(userRole).push().key;
             uData.key = key;
-
             db.ref(userRole + '/' + key).set(uData).then(() => {
                 localStorage.setItem('doctorAppUser', JSON.stringify(uData));
                 location.reload();
@@ -191,7 +203,9 @@
             document.getElementById('mainNav').style.display = 'flex';
             document.getElementById('profName').innerText = u.name;
             document.getElementById('profSpec').innerText = u.spec;
-            document.getElementById('profPicDisp').src = u.pic;
+            document.getElementById('profCity').innerText = u.city;
+            document.getElementById('profPhone').innerText = u.phone;
+            document.getElementById('profIconLarge').innerText = (u.role === 'doctors' ? '👨‍⚕️' : '👤');
             loadData();
         }
 
@@ -201,35 +215,38 @@
                 let html = '';
                 snap.forEach(c => {
                     let d = c.val();
-                    html += `<div class="card">
-                        <img src="${d.pic}" class="card-img">
+                    let icon = (path === 'doctors') ? '👨‍⚕️' : '👤';
+                    let label = (path === 'doctors') ? (currentLang==='en'?'Doctor':'ڈاکٹر') : (currentLang==='en'?'Patient':'مریض');
+                    html += `<div class="card" onclick='viewDetails(${JSON.stringify(d)}, "${path}")'>
                         <div class="user-info">
-                            <b>${d.name}</b>
-                            <div style="color:var(--primary); font-size:11px;">${d.city}</div>
-                            <div>${d.spec} ${d.edu ? '('+d.edu+')' : ''}</div>
+                            <b>${icon} ${d.name} <span class="user-label ${path==='doctors'?'doc-label':'pub-label'}">${label}</span></b>
+                            <div style="color:var(--primary); font-size:11px;">📍 ${d.city}</div>
+                            <div style="font-size:12px; color:#666;">${d.spec}</div>
                         </div>
-                        <a href="https://wa.me/${d.phone}" class="btn-wa">WhatsApp</a>
+                        <div style="font-size:20px; color:#ccc;">›</div>
                     </div>`;
                 });
-                document.getElementById('listContainer').innerHTML = html || '<p style="text-align:center; margin-top:50px;">No records</p>';
+                document.getElementById('listContainer').innerHTML = html || '<center style="padding:20px;">No Records</center>';
             });
         }
 
-        function editProfile() {
-            let u = JSON.parse(localStorage.getItem('doctorAppUser'));
-            isEditMode = true;
-            showForm(u.role === 'doctors' ? 'doc' : 'pub');
-            document.getElementById('formHeading').innerText = "Edit Profile";
-            document.getElementById('submitBtn').innerText = "Save Changes";
-            document.getElementById('uName').value = u.name;
-            document.getElementById('uPhone').value = u.phone;
-            document.getElementById('uCity').value = u.city;
-            document.getElementById('finalPicUrl').value = u.pic;
-            document.getElementById('previewImg').src = u.pic;
-            if(u.role === 'doctors') {
-                document.getElementById('uSpec').value = u.spec;
-                document.getElementById('uEdu').value = u.edu;
-            }
+        function viewDetails(data, role) {
+            document.getElementById('detName').innerText = data.name;
+            document.getElementById('detIcon').innerText = (role === 'doctors' ? '👨‍⚕️' : '👤');
+            let content = `
+                <div class="detail-item"><b>📍 City:</b> ${data.city}</div>
+                <div class="detail-item"><b>🩺 Specialization:</b> ${data.spec}</div>
+                ${data.edu ? `<div class="detail-item"><b>🎓 Education:</b> ${data.edu}</div>` : ''}
+                <div class="detail-item"><b>📞 Phone:</b> ${data.phone}</div>
+            `;
+            document.getElementById('detContent').innerHTML = content;
+            document.getElementById('detWaLink').href = "https://wa.me/" + data.phone.replace(/\D/g,'');
+            document.getElementById('detailsModal').style.display = 'flex';
+        }
+
+        function updateStats() {
+            db.ref('doctors').on('value', s => { document.getElementById('countDoc').innerText = s.numChildren(); });
+            db.ref('patients').on('value', s => { document.getElementById('countPub').innerText = s.numChildren(); });
         }
 
         function filterData() {
@@ -246,8 +263,16 @@
             el.classList.add('active');
         }
 
+        function editProfile() {
+            let u = JSON.parse(localStorage.getItem('doctorAppUser'));
+            isEditMode = true;
+            showForm(u.role === 'doctors' ? 'doc' : 'pub');
+            document.getElementById('uName').value = u.name;
+            document.getElementById('uPhone').value = u.phone;
+            document.getElementById('uCity').value = u.city;
+        }
+
         function logout() { localStorage.removeItem('doctorAppUser'); location.reload(); }
-        function toggleHelp(s) { document.getElementById('helpModal').style.display = s ? 'flex' : 'none'; }
     </script>
 </body>
 </html>
