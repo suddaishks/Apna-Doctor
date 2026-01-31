@@ -15,10 +15,8 @@
         p { color: #7f8c8d; margin-bottom: 25px; }
         .btn { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
         .btn-google { background-color: #4285F4; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-google:hover { background-color: #357abd; }
         .btn-primary { background-color: #27ae60; color: white; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 15px; outline: none; }
-        input:focus { border-color: #3498db; }
     </style>
 </head>
 <body>
@@ -45,7 +43,7 @@
     </div>
 
     <script>
-        // آپ کا فائر بیس کنکشن (جو آپ نے نکالا تھا)
+        // آپ کا اصلی فائر بیس کنکشن
         const firebaseConfig = {
             apiKey: "AIzaSyDVJq00WDIMIZTuhaZn0KLeqLoBhOAuGWc",
             authDomain: "apna-doctor-d928f.firebaseapp.com",
@@ -58,40 +56,43 @@
 
         firebase.initializeApp(firebaseConfig);
 
+        // گوگل لاگ ان کا فنکشن (موبائل کے لیے ری ڈائریکٹ)
         async function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
-                const result = await firebase.auth().signInWithPopup(provider);
+                await firebase.auth().signInWithRedirect(provider);
+            } catch (error) {
+                alert("لاگ ان میں مسئلہ: " + error.message);
+            }
+        }
+
+        // یہ فنکشن لاگ ان ہو کر واپس آنے والے صارف کا ڈیٹا سنبھالے گا
+        firebase.auth().getRedirectResult().then((result) => {
+            if (result.user) {
                 const user = result.user;
-                
-                // لاگ ان کے بعد نام خودکار بھر جائے گا
                 document.getElementById('userName').value = user.displayName;
                 
                 // اسکرین تبدیل کریں
                 document.getElementById('loginScreen').classList.remove('active');
                 document.getElementById('setupScreen').classList.add('active');
-            } catch (error) {
-                console.error("Login Error:", error);
-                alert("گوگل لاگ ان فیل ہو گیا: " + error.message);
             }
-        }
+        }).catch((error) => {
+            console.error("Auth error:", error);
+        });
 
         function saveProfile() {
             const name = document.getElementById('userName').value;
             const role = document.getElementById('userRole').value;
             
             if(!name || !role) {
-                alert("براہ کرم نام اور رول دونوں منتخب کریں!");
+                alert("براہ کرم نام اور رول منتخب کریں!");
                 return;
             }
 
-            // اب یہاں سے پروگرام کو پتہ چلے گا کہ کہاں جانا ہے
             if(role === 'doctor') {
-                alert("خوش آمدید ڈاکٹر " + name + "! آپ کا کلینک ڈیش بورڈ تیار کیا جا رہا ہے۔");
-                // یہاں ڈاکٹر والے پیج کا فنکشن آئے گا
+                alert("خوش آمدید ڈاکٹر " + name + "! اب ہم ڈاکٹر کا ڈیش بورڈ ڈیزائن کریں گے۔");
             } else {
-                alert("خوش آمدید " + name + "! آپ کے لیے قریبی ڈاکٹرز تلاش کیے جا رہے ہیں۔");
-                // یہاں پبلک والے پیج کا فنکشن آئے گا
+                alert("خوش آمدید " + name + "! اب ہم مریضوں کا حصہ ڈیزائن کریں گے۔");
             }
         }
     </script>
