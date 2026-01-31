@@ -3,97 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apna Doctor - Healthcare System</title>
+    <title>Apna Doctor</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; display: none; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); width: 90%; max-width: 380px; text-align: center; display: none; }
         .active { display: block; }
-        h1 { color: #2c3e50; font-size: 24px; margin-bottom: 10px; }
-        p { color: #7f8c8d; margin-bottom: 25px; }
-        .btn { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        .btn-google { background-color: #4285F4; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-primary { background-color: #27ae60; color: white; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 15px; outline: none; }
+        h2 { color: #2c3e50; }
+        .btn { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .btn-google { background-color: #4285F4; color: white; border: 1px solid #357abd; }
+        .btn-save { background-color: #27ae60; color: white; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
     </style>
 </head>
 <body>
 
     <div id="loginScreen" class="card active">
-        <h1>اپنا ڈاکٹر</h1>
-        <p>جاری رکھنے کے لیے گوگل سے لاگ ان کریں</p>
-        <button class="btn btn-google" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="G">
-            Google کے ساتھ لاگ ان کریں
-        </button>
+        <h2>اپنا ڈاکٹر</h2>
+        <p>جاری رکھنے کے لیے لاگ ان کریں</p>
+        <button class="btn btn-google" onclick="loginWithGoogle()">Google کے ساتھ لاگ ان کریں</button>
     </div>
 
     <div id="setupScreen" class="card">
-        <h1>پروفائل مکمل کریں</h1>
-        <p>براہ کرم اپنا نام اور پیشہ منتخب کریں</p>
+        <h3>پروفائل مکمل کریں</h3>
+        <p>آپ کا نام اور رول کیا ہے؟</p>
         <input type="text" id="userName" placeholder="آپ کا نام">
         <select id="userRole">
-            <option value="">آپ کون ہیں؟ (رول منتخب کریں)</option>
+            <option value="">رول منتخب کریں...</option>
             <option value="doctor">میں ڈاکٹر ہوں (Doctor)</option>
             <option value="public">میں مریض ہوں (Public)</option>
         </select>
-        <button class="btn btn-primary" onclick="saveProfile()">محفوظ کریں اور آگے بڑھیں</button>
+        <button class="btn btn-save" onclick="saveProfile()">محفوظ کریں اور آگے بڑھیں</button>
     </div>
 
     <script>
-        // آپ کا اصلی فائر بیس کنکشن
+        // یہ وہ کوڈ ہے جو آپ نے ابھی بھیجا ہے (بالکل ٹھیک)
         const firebaseConfig = {
-            apiKey: "AIzaSyDVJq00WDIMIZTuhaZn0KLeqLoBhOAuGWc",
+            apiKey: "AIzaSyDVJq00WDiMIZTuhaZnGKLeqLoBhOAUgWc",
             authDomain: "apna-doctor-d928f.firebaseapp.com",
             projectId: "apna-doctor-d928f",
             storageBucket: "apna-doctor-d928f.firebasestorage.app",
             messagingSenderId: "488555434869",
-            appId: "1:488555434869:web:2f707ea67489a52acd793c",
+            appId: "1:488555434869:web:2f707ea67409e52ecd793c",
             measurementId: "G-STENYD9ZKQ"
         };
 
+        // فائر بیس شروع کریں
         firebase.initializeApp(firebaseConfig);
 
-        // گوگل لاگ ان کا فنکشن (موبائل کے لیے ری ڈائریکٹ)
-        async function loginWithGoogle() {
+        // گوگل لاگ ان (موبائل کے لیے ری ڈائریکٹ طریقہ)
+        function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                await firebase.auth().signInWithRedirect(provider);
-            } catch (error) {
-                alert("لاگ ان میں مسئلہ: " + error.message);
-            }
+            firebase.auth().signInWithRedirect(provider);
         }
 
-        // یہ فنکشن لاگ ان ہو کر واپس آنے والے صارف کا ڈیٹا سنبھالے گا
+        // لاگ ان ہو کر واپس آنے کے بعد کا عمل
         firebase.auth().getRedirectResult().then((result) => {
-            if (result.user) {
-                const user = result.user;
-                document.getElementById('userName').value = user.displayName;
-                
-                // اسکرین تبدیل کریں
+            if (result && result.user) {
+                document.getElementById('userName').value = result.user.displayName;
                 document.getElementById('loginScreen').classList.remove('active');
                 document.getElementById('setupScreen').classList.add('active');
             }
         }).catch((error) => {
-            console.error("Auth error:", error);
+            console.error("Auth Error:", error);
+            if(error.code !== 'auth/redirect-cancelled-by-user') {
+                alert("مسئلہ: " + error.message);
+            }
         });
 
+        // پروفائل سیو کرنے کا فنکشن
         function saveProfile() {
             const name = document.getElementById('userName').value;
             const role = document.getElementById('userRole').value;
             
             if(!name || !role) {
-                alert("براہ کرم نام اور رول منتخب کریں!");
+                alert("براہ کرم تمام خانے پُر کریں");
                 return;
             }
 
-            if(role === 'doctor') {
-                alert("خوش آمدید ڈاکٹر " + name + "! اب ہم ڈاکٹر کا ڈیش بورڈ ڈیزائن کریں گے۔");
-            } else {
-                alert("خوش آمدید " + name + "! اب ہم مریضوں کا حصہ ڈیزائن کریں گے۔");
-            }
+            alert("شکریہ " + name + "! آپ کا رول " + role + " محفوظ ہو گیا۔");
+            // یہاں سے ہم ڈاکٹر یا پبلک ڈیش بورڈ پر جائیں گے
         }
     </script>
 </body>
