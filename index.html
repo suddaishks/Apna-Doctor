@@ -15,9 +15,9 @@
         .btn { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
         .btn-blue { background: var(--primary); color: white; }
         .btn-green { background: var(--secondary); color: white; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         .list-item { background: white; padding: 15px; margin: 10px; border-radius: 10px; border-right: 5px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .header { background: var(--primary); color: white; padding: 15px; font-size: 20px; text-align: center; position: sticky; top: 0; z-index: 100; }
+        .header { background: var(--primary); color: white; padding: 15px; font-size: 20px; text-align: center; }
     </style>
 </head>
 <body>
@@ -31,7 +31,7 @@
     <div id="docForm" class="card">
         <h3>ڈاکٹر رجسٹریشن</h3>
         <input type="text" id="dName" placeholder="آپ کا نام">
-        <input type="text" id="dSpec" placeholder="ماہرِ امراض">
+        <input type="text" id="dSpec" placeholder="ماہرِ (مثلاً بچوں کے ڈاکٹر)">
         <input type="tel" id="dPhone" placeholder="فون نمبر">
         <button class="btn btn-blue" onclick="registerUser('doctors')">اکاؤنٹ بنائیں</button>
     </div>
@@ -44,17 +44,17 @@
     </div>
 
     <div id="docDash" style="display:none;">
-        <div class="header">مریضوں کی لسٹ</div>
-        <div id="patientsList"></div>
+        <div class="header">ڈاکٹر ڈیش بورڈ - مریضوں کی لسٹ</div>
+        <div id="patientsList" style="padding:10px;"></div>
     </div>
 
     <div id="pubDash" style="display:none;">
-        <div class="header">دستیاب ڈاکٹرز</div>
-        <div id="doctorsList"></div>
+        <div class="header">مریض ڈیش بورڈ - دستیاب ڈاکٹرز</div>
+        <div id="doctorsList" style="padding:10px;"></div>
     </div>
 
     <script>
-        // فائر بیس کنکشن
+        // آپ کا اصلی کنکشن لنک
         const firebaseConfig = {
             apiKey: "AIzaSyDVJq00WDiMIZTuhaZnGKLeqLoBhOAUgWc",
             authDomain: "apna-doctor-d928f.firebaseapp.com",
@@ -71,32 +71,33 @@
             else document.getElementById('pubForm').classList.add('active');
         }
 
-        // ڈیٹا بیس میں ڈیٹا ڈالنا
         function registerUser(type) {
-            let data = {};
-            if(type === 'doctors') {
-                data = { name: document.getElementById('dName').value, spec: document.getElementById('dSpec').value, phone: document.getElementById('dPhone').value };
-            } else {
-                data = { name: document.getElementById('pName').value, phone: document.getElementById('pPhone').value };
-            }
+            let name = (type === 'doctors') ? document.getElementById('dName').value : document.getElementById('pName').value;
+            let phone = (type === 'doctors') ? document.getElementById('dPhone').value : document.getElementById('pPhone').value;
+            let spec = (type === 'doctors') ? document.getElementById('dSpec').value : "";
 
+            if(!name || !phone) { alert("براہ کرم نام اور نمبر لکھیں!"); return; }
+
+            let data = { name: name, phone: phone };
+            if(spec) data.spec = spec;
+
+            // ڈیٹا بیس میں سیو کرنا
             db.ref(type).push(data).then(() => {
                 document.getElementById('docForm').classList.remove('active');
                 document.getElementById('pubForm').classList.remove('active');
-                if(type === 'doctors') { loadDash('doctors'); } else { loadDash('patients'); }
-            });
+                loadDash(type === 'doctors' ? 'doctor' : 'patient');
+            }).catch(err => alert("ایرر: " + err.message));
         }
 
-        // ڈیٹا بیس سے لائیو ڈیٹا اٹھانا
-        function loadDash(userType) {
-            if(userType === 'doctors') {
+        function loadDash(role) {
+            if(role === 'doctor') {
                 document.getElementById('docDash').style.display = 'block';
                 db.ref('patients').on('value', (snap) => {
                     let html = '';
                     snap.forEach(child => {
                         html += `<div class="list-item"><b>مریض: ${child.val().name}</b><br>فون: ${child.val().phone}</div>`;
                     });
-                    document.getElementById('patientsList').innerHTML = html || '<p style="text-align:center">کوئی مریض آن لائن نہیں</p>';
+                    document.getElementById('patientsList').innerHTML = html || 'کوئی مریض آن لائن نہیں';
                 });
             } else {
                 document.getElementById('pubDash').style.display = 'block';
@@ -105,7 +106,7 @@
                     snap.forEach(child => {
                         html += `<div class="list-item"><b>ڈاکٹر: ${child.val().name}</b><br>ماہر: ${child.val().spec}<br>فون: ${child.val().phone}</div>`;
                     });
-                    document.getElementById('doctorsList').innerHTML = html || '<p style="text-align:center">کوئی ڈاکٹر دستیاب نہیں</p>';
+                    document.getElementById('doctorsList').innerHTML = html || 'کوئی ڈاکٹر دستیاب نہیں';
                 });
             }
         }
