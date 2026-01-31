@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sudais Health Connect Pro</title>
+    <style>
+        :root { --main: #2563eb; --doctor: #10b981; --public: #6366f1; --bg: #f8fafc; }
+        body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        .app-shell { height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Screens */
+        .screen { display: none; flex: 1; overflow-y: auto; padding-bottom: 80px; background: var(--bg); }
+        .screen.active { display: flex; flex-direction: column; }
+
+        /* Login Styling */
+        .login-page { background: white; padding: 30px; align-items: center; justify-content: center; text-align: center; }
+        .social-btn { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
+        .btn-google { color: #db4437; border-color: #db4437; background: white; }
+        .btn-fb { background: #4267B2; color: white; border: none; }
+
+        /* Role Selection Boxes */
+        .role-box { width: 100%; padding: 25px; border-radius: 20px; border: none; margin-bottom: 15px; color: white; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.1); transition: 0.3s; }
+        .role-doctor { background: var(--doctor); }
+        .role-public { background: var(--public); }
+
+        /* Form Inputs */
+        .input-group { width: 100%; margin-bottom: 15px; text-align: right; }
+        .input-group input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
+
+        /* Navbar */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 70px; display: none; justify-content: space-around; align-items: center; border-top: 1px solid #eee; }
+        .nav-item { border: none; background: none; color: #64748b; font-size: 12px; flex: 1; text-align: center; }
+        .nav-item.active { color: var(--main); font-weight: bold; }
+        .nav-item span { font-size: 22px; display: block; }
+
+        /* Header */
+        .app-header { background: white; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <div id="loginScreen" class="screen login-page active">
+        <div style="font-size: 60px; color: var(--main); margin-bottom: 10px;">✚</div>
+        <h1>Sudais Health</h1>
+        <p style="color: #64748b; margin-bottom: 40px;">لاگ ان کریں اور قدم بڑھائیں</p>
+        <button class="social-btn btn-google" onclick="doSocialLogin('Google')">Google سے اکاؤنٹ کھولیں</button>
+        <button class="social-btn btn-fb" onclick="doSocialLogin('Facebook')">Facebook سے اکاؤنٹ کھولیں</button>
+    </div>
+
+    <div id="setupScreen" class="screen" style="padding: 30px; background: white;">
+        <h2 style="text-align: center;">بس ایک آخری قدم!</h2>
+        <p style="text-align: center; color: #64748b;">اپنی معلومات مکمل کریں</p>
+        
+        <div class="input-group">
+            <label>آپ کا نام (گوگل سے لیا گیا):</label>
+            <input type="text" id="userName" value="سدیس خان" readonly style="background: #f1f5f9;">
+        </div>
+        <div class="input-group">
+            <label>فون نمبر درج کریں:</label>
+            <input type="tel" id="userPhone" placeholder="03xx-xxxxxxx">
+        </div>
+
+        <h3 style="margin-top: 30px; text-align: center;">آپ کون ہیں؟</h3>
+        <button class="role-box role-doctor" onclick="finishSetup('doctor')">👨‍⚕️ میں ڈاکٹر ہوں</button>
+        <button class="role-box role-public" onclick="finishSetup('public')">👥 میں پبلک ہوں</button>
+    </div>
+
+    <div id="mainApp" class="screen">
+        <header class="app-header">
+            <span id="headerTitle">ہوم</span>
+            <button onclick="location.reload()" style="color:red; border:none; background:none;">لاگ آؤٹ</button>
+        </header>
+
+        <div id="publicHome" style="display: none; padding: 20px;">
+            <div style="background: var(--public); color: white; padding: 25px; border-radius: 20px;">
+                <h3>خوش آمدید، پبلک ممبر!</h3>
+                <p>آج آپ کس ڈاکٹر سے ملنا چاہتے ہیں؟</p>
+            </div>
+            <h4 style="margin-top:20px;">قریبی ہسپتال</h4>
+            <div style="background:white; padding:15px; border-radius:15px; border-right: 5px solid var(--public);">
+                <b>انعم ہسپتال (ملیر)</b><br>
+                <small>رابطہ: 021-34502686</small>
+            </div>
+        </div>
+
+        <div id="doctorHome" style="display: none; padding: 20px;">
+            <div style="background: var(--doctor); color: white; padding: 25px; border-radius: 20px;">
+                <h3>خوش آمدید، ڈاکٹر صاحب!</h3>
+                <p>آپ کا کلینک ریکارڈ یہاں نظر آئے گا۔</p>
+            </div>
+            <div style="background:white; padding:20px; border-radius:20px; margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+                <span>آپ کا اسٹیٹس: <b id="stText">آف لائن</b></span>
+                <button id="stBtn" onclick="toggleStatus()" style="padding:10px; border-radius:10px; border:none; background:#eee;">آن لائن کریں</button>
+            </div>
+        </div>
+    </div>
+
+    <nav id="navBar" class="nav-bar">
+        <button class="nav-item active" onclick="showTab('home')"><span>🏠</span>ہوم</button>
+        <button class="nav-item" onclick="showTab('schedule')"><span>📅</span>شیڈول</button>
+        <button class="nav-item" onclick="showTab('profile')"><span>👤</span>پروفائل</button>
+    </nav>
+
+</div>
+
+<script>
+    function doSocialLogin(provider) {
+        // لاگ ان کے بعد سیٹ اپ اسکرین پر جائیں
+        document.getElementById('loginScreen').classList.remove('active');
+        document.getElementById('setupScreen').classList.add('active');
+    }
+
+    function finishSetup(role) {
+        const phone = document.getElementById('userPhone').value;
+        if(!phone) { alert("براہ کرم فون نمبر درج کریں"); return; }
+
+        document.getElementById('setupScreen').classList.remove('active');
+        document.getElementById('mainApp').classList.add('active');
+        document.getElementById('navBar').style.display = 'flex';
+
+        if(role === 'doctor') {
+            document.getElementById('doctorHome').style.display = 'block';
+            document.getElementById('headerTitle').innerText = "ڈاکٹر ڈیش بورڈ";
+        } else {
+            document.getElementById('publicHome').style.display = 'block';
+            document.getElementById('headerTitle').innerText = "پبلک ممبر ہوم";
+        }
+    }
+
+    function toggleStatus() {
+        const btn = document.getElementById('stBtn');
+        const txt = document.getElementById('stText');
+        if(btn.innerText === "آن لائن کریں") {
+            btn.innerText = "آف لائن کریں"; btn.style.background = "#dcfce7";
+            txt.innerText = "آن لائن"; txt.style.color = "green";
+        } else {
+            btn.innerText = "آن لائن کریں"; btn.style.background = "#eee";
+            txt.innerText = "آف لائن"; txt.style.color = "black";
+        }
+    }
+
+    function showTab(tab) {
+        // ابھی صرف ہوم پیج دکھا رہے ہیں، پروفائل وغیرہ کا ڈیزائن آپ پہلے دیکھ چکے ہیں
+        alert(tab + " اسکرین پر منتقل ہو رہے ہیں...");
+    }
+</script>
+
+</body>
+</html>
